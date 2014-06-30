@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/davidpelaez/github-auth-keys",
 	"GoVersion": "go1.3",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/BurntSushi/toml",

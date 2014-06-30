@@ -1,11 +1,9 @@
 bindata:
-	@go-bindata -prefix data data/...
+	@go-bindata -o gh-keys/bindata.go -prefix bindata bindata/...
 
 build: bindata
-	@go build
+	@gofmt -w gh-keys
+	@cd gh-keys && go build -o ../binaries/gh-keys
 
 run: bindata
-	@go run *.go davidpelaez
-
-fmt:
-	echo pending...
+	@go run gh-keys/*.go davidpelaez

@@ -1,0 +1,43 @@
+{
+	"ImportPath": "github.com/davidpelaez/github-auth-keys",
+	"GoVersion": "go1.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/BurntSushi/toml",
+			"Rev": "2dff11163ee667d51dcc066660925a92ce138deb"
+		},
+		{
+			"ImportPath": "github.com/kr/pretty",
+			"Comment": "go.weekly.2011-12-22-18-gbc9499c",
+			"Rev": "bc9499caa0f45ee5edb2f0209fbd61fbf3d9018f"
+		},
+		{
+			"ImportPath": "github.com/kr/text",
+			"Rev": "6807e777504f54ad073ecef66747de158294b639"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "6fb2c832bcac61d01212ab1d172f7a14a8585b07"
+		},
+		{
+			"ImportPath": "github.com/spf13/cast",
+			"Rev": "99f1223ff64ed0c6a1dd9c850474f5fecba6e0a4"
+		},
+		{
+			"ImportPath": "github.com/spf13/jwalterweatherman",
+			"Rev": "bd90d9f5d6eaeab52a8be0b13382ec840fdaf9fd"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Rev": "b02196a78893a71903e9ad98359e7f891b1e7781"
+		},
+		{
+			"ImportPath": "github.com/spf13/viper",
+			"Rev": "7c42740ea622bc885e5faac3757a8bd906224a13"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v1",
+			"Rev": "b0c168ac0cf9493da1f9bb76c34b26ffef940b4a"
+		}
+	]
+}

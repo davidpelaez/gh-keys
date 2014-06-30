@@ -1,0 +1,9 @@
+---
+allow_panic_mode: False # use expired cached keys if server's offline?
+ttl: 0 # for how long is a cached key valid before a new lookup is performed?
+
+allow:
+  all: # this literally mean access to ANY account that ssh accepts at login
+    - developer
+  git: # this means gh user 'someone' can only login as git
+    - someone

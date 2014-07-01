@@ -1,8 +1,0 @@
-allow_panic_mode = false
-log = "auth.log"
-
-[all2ow]
-
-	asll = ["developer"]
-	git = ["someone"]
-

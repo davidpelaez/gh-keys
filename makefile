@@ -5,5 +5,6 @@ build: bindata
 	@gofmt -w gh-keys
 	@cd gh-keys && go build -o ../binaries/gh-keys
 
+#-t $$(cat token.private)
 run: bindata
-	@go run gh-keys/*.go davidpelaez
+	@go run gh-keys/*.go -i -v

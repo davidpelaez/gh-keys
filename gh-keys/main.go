@@ -6,14 +6,11 @@ import (
 	"flag"
 )
 
-// globally accessible configuration
-var config = new(Configuration)
 var verbose bool
 
 func check(e error) {
 	if e != nil {
-		//failWith(e)
-		failWith("pending...")
+		failWith(e.Error())
 	}
 }
 
@@ -22,7 +19,7 @@ func failWith(msg string){
 	os.Exit(1)
 }
 
-func verbosePrint(msg string){
+func debugPrint(msg string){
 	if verbose {
 		fmt.Println(msg)
 	}
@@ -34,7 +31,7 @@ func printUsage() {
 
 func authorize(username string) {
 
-	verbosePrint("Getting auth keys for" + username)
+	debugPrint("Getting auth keys for" + username)
 	fmt.Println(keysOf(username))
 	os.Exit(128)
 	// todo append to the log
@@ -44,33 +41,15 @@ func authorize(username string) {
 	// print the keys of the applicable users, calling printKeysOf
 }
 
-func logConfigItem(key string, rawValue interface{}) {
-	printableValue, ok := rawValue.(string)
-	if !ok {
-		failWith("couldnt convert " + key)
-	}
 
-	//if printableValue != "" {
-		fmt.Println(key + ": " , printableValue)
-	//	}else{
-	//		fmt.Println(key, "none")
-	//	}
-}
-
-func printConfigSummary() {
-	logConfigItem("AllowPanicMode", config.AllowPanicMode)
-	logConfigItem("TTL", config.TTL)
-	logConfigItem("BootstrapKeyFile", config.BootstrapKeyFile)
-	logConfigItem("BootstrapKey", config.BootstrapKey)
-	logConfigItem("APIToken", config.APIToken)
-	logConfigItem("Permissions", config.Permissions)
-}
 
 func main() {
 
 	info := flag.Bool("i", false, "Display configuration summary")
+
 	flag.BoolVar(&verbose,"v", false, "Verbose mode")
 	flag.StringVar(&config.APIToken, "t", "", "Github API token")
+	flag.StringVar(&config.ConfigFile, "c", "", "Config file to use")
 	
 	flag.Parse()
 	configure()

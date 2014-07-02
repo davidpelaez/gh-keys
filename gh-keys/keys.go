@@ -26,7 +26,7 @@ func getKeysOf(account string) []string {
 	req.Header.Set("Accept","application/vnd.github.v3+json")
 	if config.APIToken != "" {
 		// use personal token from the config if available
-		verbosePrint("Using auth token")
+		debugPrint("Using auth token")
 		req.SetBasicAuth(config.APIToken,"x-oauth-basic ")
 	}
 
@@ -67,7 +67,7 @@ func keysOf(account string) string {
 	// and then if true print
 	keys := getKeysOf(account)
 	for _, k := range keys {
-		verbosePrint("  - " + k)
+		debugPrint("  - " + k)
 	}
 
 	return "" //string(body)

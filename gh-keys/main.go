@@ -29,20 +29,6 @@ func printUsage() {
 	fmt.Println("Usage...")
 }
 
-func authorize(username string) {
-
-	debugPrint("Getting auth keys for" + username)
-	fmt.Println(keysOf(username))
-	os.Exit(128)
-	// todo append to the log
-
-	// permittedAccountsFor
-	// syncKeys, if error check for panic mode, then continue, or exit
-	// print the keys of the applicable users, calling printKeysOf
-}
-
-
-
 func main() {
 
 	info := flag.Bool("i", false, "Display configuration summary")
@@ -63,4 +49,17 @@ func main() {
 	default:
 		printUsage()
 	}
+}
+
+
+func authorize(username string) {
+
+	debugPrint("Getting auth keys for" + username)
+	fmt.Println(keysOf(username))
+	os.Exit(128)
+	// todo append to the log
+
+	// permittedAccountsFor
+	// syncKeys, if error check for panic mode, then continue, or exit
+	// print the keys of the applicable users, calling printKeysOf
 }

@@ -1,7 +1,4 @@
-bindata:
-	@go-bindata -o gh-keys/bindata.go -prefix bindata bindata/...
-
-build: bindata
+build:
 	@gofmt -w gh-keys
 	@cd gh-keys && go build -o ../binaries/gh-keys
 

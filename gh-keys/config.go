@@ -91,5 +91,11 @@ func printConfigSummary() {
 	logConfigItem("TTL", config.TTL)
 	logConfigItem("BootstrapKeyFile", config.BootstrapKeyFile)
 	logConfigItem("APIToken", config.APIToken)
-	logConfigItem("Permissions", config.Permissions)
+
+	perms := ""
+	for username, accounts := range config.Permissions {
+		perms = perms + fmt.Sprintf("%s: %v ",username, accounts)
+	}
+
+	logConfigItem("Permissions", perms)
 }

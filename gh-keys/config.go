@@ -81,7 +81,7 @@ func configure() {
 }
 
 func logConfigItem(key string, rawValue interface{}) {
-	fmt.Printf("%20s %v\n", key + ":" , rawValue)
+	fmt.Printf("%19s %v\n", key + ":" , rawValue)
 }
 
 func printConfigSummary() {

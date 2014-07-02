@@ -21,7 +21,7 @@ func failWith(msg string){
 
 func debugPrint(msg string){
 	if verbose {
-		fmt.Println(msg)
+		fmt.Println("[debug]",msg)
 	}
 }
 

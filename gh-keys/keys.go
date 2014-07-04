@@ -11,6 +11,7 @@ import (
 
 // define outside a function to be reused in the pkg
 var client = &http.Client{ Timeout: 2*time.Second }
+var githubAPI = "https://api.github.com/users/"
 
 type PublicKey struct {
 	Id int
@@ -19,7 +20,7 @@ type PublicKey struct {
 
 func getKeysOf(account string) []string {
 	
-	url := "https://api.github.com/users/" + account + "/keys"
+	url := githubAPI + account + "/keys"
 
 	req, _ := http.NewRequest("GET", url, nil)
 

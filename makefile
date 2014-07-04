@@ -5,3 +5,6 @@ build:
 #-t $$(cat token.private)
 run: bindata
 	@go run gh-keys/*.go -i -v
+
+test:
+	@go test gh-keys/*.go

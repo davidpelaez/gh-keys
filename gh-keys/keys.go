@@ -2,33 +2,32 @@ package main
 
 import (
 	//"github.com/gorilla/http"
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"time"
-	)
-
+)
 
 // define outside a function to be reused in the pkg
-var client = &http.Client{ Timeout: 2*time.Second }
+var client = &http.Client{Timeout: 2 * time.Second}
 var githubAPI = "https://api.github.com/users/"
 
 type PublicKey struct {
-	Id int
+	Id  int
 	Key string
 }
 
 func getKeysOf(account string) []string {
-	
+
 	url := githubAPI + account + "/keys"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
-	req.Header.Set("Accept","application/vnd.github.v3+json")
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
 	if config.APIToken != "" {
 		// use personal token from the config if available
 		debugPrint("Using auth token")
-		req.SetBasicAuth(config.APIToken,"x-oauth-basic ")
+		req.SetBasicAuth(config.APIToken, "x-oauth-basic ")
 	}
 
 	resp, err := client.Do(req)
@@ -46,13 +45,13 @@ func getKeysOf(account string) []string {
 	defer resp.Body.Close()
 	keysBody, err := ioutil.ReadAll(resp.Body)
 
-	keysCollection := make([]PublicKey,0)
+	keysCollection := make([]PublicKey, 0)
 	json.Unmarshal(keysBody, &keysCollection)
 
-	keys := make([]string,0)
+	keys := make([]string, 0)
 	for _, key := range keysCollection {
-        keys = append(keys, key.Key)
-    }
+		keys = append(keys, key.Key)
+	}
 
 	return keys
 }

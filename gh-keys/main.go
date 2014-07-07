@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-	"flag"
 )
 
 var verbose bool
@@ -14,14 +14,14 @@ func check(e error) {
 	}
 }
 
-func failWith(msg string){
+func failWith(msg string) {
 	fmt.Println(msg)
 	os.Exit(1)
 }
 
-func debugPrint(msg string){
+func debugPrint(msg string) {
 	if verbose {
-		fmt.Println("[debug]",msg)
+		fmt.Println("[debug]", msg)
 	}
 }
 
@@ -33,10 +33,10 @@ func main() {
 
 	info := flag.Bool("i", false, "Display configuration summary")
 
-	flag.BoolVar(&verbose,"v", false, "Verbose mode")
+	flag.BoolVar(&verbose, "v", false, "Verbose mode")
 	flag.StringVar(&config.APIToken, "t", "", "Github API token")
 	flag.StringVar(&config.ConfigFile, "c", "", "Config file to use")
-	
+
 	flag.Parse()
 	configure()
 	arguments := flag.Args()
@@ -50,7 +50,6 @@ func main() {
 		printUsage()
 	}
 }
-
 
 func authorize(username string) {
 

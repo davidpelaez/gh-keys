@@ -1,5 +1,7 @@
-build:
+fmt:
 	@gofmt -w gh-keys
+
+build: fmt
 	@cd gh-keys && go build -o ../binaries/gh-keys
 
 #-t $$(cat token.private)

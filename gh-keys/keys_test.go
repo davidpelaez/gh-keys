@@ -75,7 +75,7 @@ func fakeOffline() {
 
 func fakeOnline() {
 	githubAPI = fakeServer.URL + "/users/"
-	timeout = 5 * time.Second
+	timeout = 10 * time.Second
 }
 
 func (suite *KeysTestSuite) TestSuccessfulRetrieval() {

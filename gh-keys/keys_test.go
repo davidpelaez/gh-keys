@@ -4,13 +4,12 @@ import (
 	"github.com/go-martini/martini"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-	//"time"
-	"io/ioutil"
+	"time"
 )
 
 var receivedAuthorization = "--"
@@ -71,10 +70,12 @@ func buildFakeServer() httptest.Server {
 
 func fakeOffline() {
 	githubAPI = badURL
+	timeout = 1 * time.Second
 }
 
 func fakeOnline() {
 	githubAPI = fakeServer.URL + "/users/"
+	timeout = 5 * time.Second
 }
 
 func (suite *KeysTestSuite) TestSuccessfulRetrieval() {

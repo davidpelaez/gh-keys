@@ -66,10 +66,6 @@ func permittedAccountsFor(username string) []string {
 		permittedAccounts = append(permittedAccounts, userSpecific...)
 	}
 
-	if len(permittedAccounts) == 0 {
-		return []string{config.BootstrapKey}
-	}
-
 	return permittedAccounts
 }
 
@@ -84,6 +80,10 @@ func authorizedKeysOf(username string) string {
 	debugPrint("getting keys")
 	for _, permittedAccount := range permittedAccountsFor(username) {
 		authorizedKeys = append(authorizedKeys, printableKeysOf(permittedAccount))
+	}
+
+	if len(authorizedKeys) == 0 {
+		authorizedKeys = []string{config.BootstrapKey}
 	}
 	// TODO trim empty lines
 	emptyLines := regexp.MustCompile("^$")

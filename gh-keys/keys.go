@@ -12,7 +12,8 @@ import (
 	"time"
 )
 
-var client = &http.Client{Timeout: 2 * time.Second}
+var timeout = 5 * time.Second
+var client = &http.Client{Timeout: timeout}
 var githubAPI = "https://api.github.com/users/"
 
 type PublicKey struct {

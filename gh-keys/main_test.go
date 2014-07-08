@@ -48,8 +48,7 @@ func (suite *MainTestSuite) TestPermittedAccountsFor() {
 	// without any config
 	for _, user := range []string{"root", "git", "something"} {
 		permitted := permittedAccountsFor(user)
-		assert.Contains(permitted[0], config.BootstrapKey)
-		assert.Equal(len(permitted), 1)
+		assert.Equal(len(permitted), 0)
 	}
 
 	// with specific perms

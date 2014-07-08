@@ -1,14 +1,16 @@
 package main
 
 import (
-	//"github.com/gorilla/http"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path"
+	"strings"
 	"time"
 )
 
-// define outside a function to be reused in the pkg
 var client = &http.Client{Timeout: 2 * time.Second}
 var githubAPI = "https://api.github.com/users/"
 
@@ -17,58 +19,132 @@ type PublicKey struct {
 	Key string
 }
 
-func getKeysOf(account string) []string {
+func online() bool {
+	req, _ := http.NewRequest("GET", config.InternetTestURL, nil)
+	resp, err := client.Do(req)
+	if err != nil {
+		// a protocol error is a if there were no internet
+		debugPrint("Proto error in online check with " + config.InternetTestURL)
+		return false
+	}
+
+	if resp.StatusCode == 200 {
+		return true
+	}else{
+		debugPrint("Unexpected code in online check: " + resp.Status)
+		return false
+	}
+
+}
+
+func getAPIKeysOf(account string) ([]string, error) {
 
 	url := githubAPI + account + "/keys"
+
+	offlineError := errors.New("Offline API")
 
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
+	
+	// use personal token from the config if available
 	if config.APIToken != "" {
-		// use personal token from the config if available
-		debugPrint("Using auth token")
-		req.SetBasicAuth(config.APIToken, "x-oauth-basic ")
+		req.SetBasicAuth(config.APIToken, "x-oauth-basic")
 	}
 
 	resp, err := client.Do(req)
-
 	if err != nil {
-		// handle protocol error
-		panic(err)
+		// a protocol error is a if the API is offline
+		return nil, offlineError
 	}
-
-	if resp.StatusCode != 200 {
-		panic("Request wan't 200!")
-	}
-
-	// verify response code
 	defer resp.Body.Close()
+
+	keys := make([]string, 0)
+
+	switch resp.StatusCode {
+	case 200:
+		break // continue to JSON parsing
+	case 404:
+		debugPrint("Github user " + account + " wasn't found, ignoring")
+		return keys, nil // empty keys array, no such user
+	default:
+		// any other code is treated as if the API is offline
+		return nil, offlineError
+	}
+
 	keysBody, err := ioutil.ReadAll(resp.Body)
 
 	keysCollection := make([]PublicKey, 0)
 	json.Unmarshal(keysBody, &keysCollection)
 
-	keys := make([]string, 0)
 	for _, key := range keysCollection {
 		keys = append(keys, key.Key)
 	}
 
-	return keys
+	return keys, nil
 }
 
-func syncKeys(accounts []string) {
-	// get the key in memory. If no connection and no panic on bad download returns an error for panic
-	// confirm format, then write to file
+func keyFilepath(account string) string {
+	filename := account + ".pub"
+	return path.Join(config.KeysDir, filename)
 }
 
-func keysOf(account string) string {
-	// send to stdout the key IF still valid
-	// otherwise verify if we're in panic mode, aka no internet
-	// and then if true print
-	keys := getKeysOf(account)
-	for _, k := range keys {
-		debugPrint("  - " + k)
+func readKeyFileOf(account string) (string, bool) {
+	filepath := keyFilepath(account)
+	if _, err := os.Stat(filepath); err !=nil && os.IsNotExist(err) {
+		debugPrint("No key file found for " + account)
+		return "", false // no stored keys
+	} else {
+		info, error := os.Stat(filepath)
+		check(error)
+		now := time.Now().Unix()
+		modTime := info.ModTime().Unix()
+		expirationTime := modTime + int64(config.TTL)
+		
+		isValid := false
+		if expirationTime > now {
+			debugPrint("Key file of " + account + " is within TTL")
+			isValid = true
+		}else{
+			debugPrint("expiration: " + string(expirationTime) + " now: " + string(now))
+		}
+
+		keys, error := ioutil.ReadFile(filepath)
+		check(error)
+		return string(keys), isValid
 	}
+}
 
-	return "" //string(body)
+func deleteKeyFile(account string){
+	filepath := keyFilepath(account)
+	if _, err := os.Stat(filepath); err !=nil && !os.IsNotExist(err) {
+		debugPrint("Deleting " + filepath)
+		removeError := os.Remove(filepath); check(removeError)
+	}
+}
+
+func printableKeysOf(account string) string {
+	cachedKeys, stillValid := readKeyFileOf(account)
+	if stillValid || panicMode {
+		if panicMode {
+			debugPrint("Using expired key(s) of " + account + " in panic mode")
+		}
+		return cachedKeys
+	} else {
+		keys, error := getAPIKeysOf(account)
+		if error != nil {
+			time.Sleep(2 * time.Second) // retry once after sleep
+			keys, error = getAPIKeysOf(account)
+			check(error)
+		}
+		filepath := keyFilepath(account)
+		content := strings.Join(keys, "\n")
+		
+		deleteKeyFile(account)
+		
+		// TODO verify format before writing to file
+		error = ioutil.WriteFile(filepath, []byte(content), 0600)
+		check(error)
+		return content
+	}
 }

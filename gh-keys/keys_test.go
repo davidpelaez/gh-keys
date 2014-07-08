@@ -1,25 +1,50 @@
 package main
 
 import (
-	//"fmt"
-	"github.com/stretchr/testify/assert"
 	"github.com/go-martini/martini"
+	"github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/suite"
+
 	"net/http"
+	"os"
 	"net/http/httptest"
 	"testing"
-	//"net/http_test"
+	//"time"
+	"io/ioutil"
 )
 
+var receivedAuthorization = "--"
+var badURL = "http://localhost:1111/users/" // made up url = offline
 var fakeServer httptest.Server
 
-func prepareFakeServer() {
 
+type KeysTestSuite struct {
+	suite.Suite
+}
+
+func (suite *KeysTestSuite) SetupSuite() {
+	configure() // make sure configuration defaults are set
+	fakeServer = buildFakeServer()
+}
+
+func (suite *KeysTestSuite) SetupTest() {
+	fakeOnline()
+}
+
+func TestKeysTestSuite(testContext *testing.T){
+	suite.Run(testContext, new(KeysTestSuite))
+}
+
+
+func buildFakeServer() httptest.Server {
 	asherHawkKeys := `[ { "id": 1, "key": "ssh-rsa Asher1..." }, 
 		{ "id": 2, "key": "ssh-rsa Asher2..." } ]`
 
-	duncanBlackKeys := `[ { "id": 3, "key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ1111....." }]`
+	duncanBlackKeys := `[ { "id": 3, "key": "ssh-rsa Duncan1" }]`
 
-	fakeKeysHandler := func (params martini.Params, r *http.Request) (int, string) {
+	fakeKeysHandler := func(params martini.Params, r *http.Request) (int, string) {
+		debugPrint("Fakeserver received req. for account " + params["username"])
+		receivedAuthorization = r.Header.Get("Authorization")
 		if r.Header.Get("Accept") != "application/vnd.github.v3+json" {
 			return 500, "Missing API version header"
 		}
@@ -33,53 +58,147 @@ func prepareFakeServer() {
 		}
 	}
 
-	m := martini.Classic()
+	router := martini.NewRouter()
+	raw_martini := martini.New()
+	//raw_martini.Use(martini.Logger())
+	//	raw_martini.Use(martini.Recovery())
+	raw_martini.MapTo(router, (*martini.Routes)(nil))
+	raw_martini.Action(router.Handle)
+
+	m := martini.ClassicMartini{raw_martini, router}
+
 	m.Get("/users/:username/keys", fakeKeysHandler)
-	fakeServer = *httptest.NewServer(http.HandlerFunc(m.ServeHTTP))
+	server := *httptest.NewServer(http.HandlerFunc(m.ServeHTTP))
+	githubAPI = server.URL + "/users/"
+	return server
+}
+
+func fakeOffline() {
+	githubAPI = badURL
+}
+
+func fakeOnline() {
 	githubAPI = fakeServer.URL + "/users/"
 }
 
-// set fake http server
-// modify the keys API url
+func (suite *KeysTestSuite) TestSuccessfulRetrieval() {
 
-func TestSuccessfulKeyRetrieval(t *testing.T) {
-	// with a successful request, verify keys are parsed and given in the right array
-	// verify they format of each key and length
-	prepareFakeServer()
-	keys := getKeysOf("asherhawk")
+	assert := assert.New(suite.T())
 
-	assert := assert.New(t)
-	assert.Equal(len(keys), 2, "returned keys don't match the expected length")
-	
+	keys, _ := getAPIKeysOf("duncanblack")
+	assert.Equal(len(keys), 1)
+
+	keys, _ = getAPIKeysOf("asherhawk")
+	assert.Equal(len(keys), 2)
+
 	for _, key := range keys {
 		// we use this to detect any error in the fake server's asnwers
 		assert.Contains(key, "ssh-rsa", "returned keys don't match the expected format")
 	}
 }
 
-func TestKeySyncing(t *testing.T) {
+func (suite *KeysTestSuite) TestBadAccountRetrieval() {
+	keys, _ := getAPIKeysOf("johndoe")
+	assert.Equal(suite.T(), len(keys), 0)
+}
+
+func (suite *KeysTestSuite) TestOfflineRetrieval() {
+	fakeOffline()
+	_, error := getAPIKeysOf("duncanblack")
+	assert.NotNil(suite.T(), error)
+}
+
+// ensure the token is used when provided in the config
+func (suite *KeysTestSuite) TestAPIToken() {
+	config.APIToken = "aloha123"
+	tokenBase64 := "YWxvaGExMjM6eC1vYXV0aC1iYXNpYw==" //encoded version
+	getAPIKeysOf("tokentester")
+	assert.Contains(suite.T(), receivedAuthorization, tokenBase64)
+}
+
+func createKeyFile(account string){
+	keyfile := keyFilepath(account)
+	deleteKeyFile(account)
+	debugPrint("Writing " + keyfile)
+	content := []byte(config.BootstrapKey)
+	error := ioutil.WriteFile(keyfile, content, 0600); check(error)
+	
+}
+
+func (suite *KeysTestSuite) TestReadKeyFileOf() {
+//	assert := assert.New(suite.T())
+	createKeyFile("johndoe")
+//
+//	config.TTL = -1 // make file expiration be in the past
+//	_, valid := readKeyFileOf("johndoe")
+//	assert.False(valid)
+//
+//	createKeyFile("janedoe")
+//
+//	config.TTL = 3600 // make file expiration be in the future
+//	keys, valid := readKeyFileOf("janedoe")
+//	assert.True(valid)
+//	assert.Equal(builtinPublicKey, keys)
+}
+
+func purgeKeysDir(){
+	error := os.RemoveAll(config.KeysDir)
+	if error != nil && !os.IsNotExist(error) {
+		debugPrint("Tried to remove " + config.KeysDir + " it exists but got error")
+		check(error)
+	}
+	debugPrint("Deleted all keys in " + config.KeysDir)
+}
+
+func (suite *KeysTestSuite) TestPrintableKeysOf() {
+	//assert := assert.New(suite.T())
+	
+	createKeyFile("johndoe")
+
+//	// cached version
+//	config.TTL = 3600 // make file expiration be in the future
+//	assert.Equal(printableKeysOf("johndoe"),builtinPublicKey)
+//
+//	// getting unknown user
+//	config.TTL = -1 // make file expiration be in the past
+//	// no such user in the API and key expired, hence should be empty
+//	assert.Equal(printableKeysOf("johndoe"), "")
+//
+//	// getting valid user from scratch
+//
+//	purgeKeysDir()
+//
+//	_, err := os.Stat(keyFilepath("duncanblack"))
+//	assert.True(os.IsNotExist(err)) // ensure the file's absent
+//	
+//	assert.Contains(printableKeysOf("duncanblack"), "Duncan1")
+//
+//	_, err = os.Stat(keyFilepath("duncanblack"))
+//	assert.Nil(err) // ensure the file was created
+//
+//	
+//	// on panic mode
+//	createKeyFile("johndoe")
+//	panicMode = true
+//	config.TTL = -1 // make file expiration be in the past
+//	assert.Equal(builtinPublicKey, printableKeysOf("johndoe"))
+
+}
+
+func (suite *KeysTestSuite) TestOnlineCheck(){
+	assert := assert.New(suite.T())
+	config.InternetTestURL = badURL
+	assert.False(online())
+	config.InternetTestURL = "http://icanhazip.com"
+	assert.True(online())
+}
+
+func (suite *KeysTestSuite) TestKeySyncing() {
 	// test expiration of files in disk
 	// writing to the right location
-	assert.True(t, true, "pending...")
+	assert.True(suite.T(), true, "pending...")
 }
 
-func TestBadAccountRetrieval(t *testing.T) {
-	// verify what happens when an account isn't found
-	assert.True(t, true, "pending...")
-}
-
-func TestOfflineSync(t *testing.T) {
-	// verify errors are returned when the api is offline
-	assert.True(t, true, "pending...")
-}
-
-func TestPermittedKeys(t *testing.T) {
-	// verify the format of all keys
-	// verify the length
-	assert.True(t, true, "pending...")
-}
-
-func TestAPIToken(t *testing.T) {
-	// ensure the token is used when provided in the config
-	assert.True(t, true, "pending...")
+func (suite *KeysTestSuite) TestOfflineSync() {
+	assert.True(suite.T(), true, "pending...")
 }

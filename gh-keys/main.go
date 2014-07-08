@@ -7,6 +7,7 @@ import (
 )
 
 var verbose bool
+var panicMode = false
 
 func check(e error) {
 	if e != nil {
@@ -20,8 +21,9 @@ func failWith(msg string) {
 }
 
 func debugPrint(msg string) {
-	if verbose {
-		fmt.Println("[debug]", msg)
+	if verbose || true {
+		// output aligned with go test verbose format
+		fmt.Println("    [debug]", msg)
 	}
 }
 
@@ -52,9 +54,10 @@ func main() {
 }
 
 func authorize(username string) {
+	panicMode = !online()
 
 	debugPrint("Getting auth keys for" + username)
-	fmt.Println(keysOf(username))
+	fmt.Println(printableKeysOf(username))
 	os.Exit(128)
 	// todo append to the log
 

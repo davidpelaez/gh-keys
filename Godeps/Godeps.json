@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/davidpelaez/github-auth-keys",
+	"ImportPath": "github.com/davidpelaez/gh-keys",
 	"GoVersion": "go1.3",
 	"Packages": [
 		"./..."
@@ -8,6 +8,16 @@
 		{
 			"ImportPath": "github.com/BurntSushi/toml",
 			"Rev": "2dff11163ee667d51dcc066660925a92ce138deb"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/inject",
+			"Comment": "v1.0-rc1-4-g4b81725",
+			"Rev": "4b8172520a03fa190f427bbd284db01b459bfce7"
+		},
+		{
+			"ImportPath": "github.com/go-martini/martini",
+			"Comment": "v1.0-14-g4ae7b6c",
+			"Rev": "4ae7b6ca22672476560d9f65f29b9b575f3ded83"
 		},
 		{
 			"ImportPath": "github.com/kr/pretty",
@@ -37,6 +47,14 @@
 		{
 			"ImportPath": "github.com/spf13/viper",
 			"Rev": "7c42740ea622bc885e5faac3757a8bd906224a13"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Rev": "5484d2a8aceae50c87c77d5a7c7eaa14befcba51"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/suite",
+			"Rev": "5484d2a8aceae50c87c77d5a7c7eaa14befcba51"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v1",

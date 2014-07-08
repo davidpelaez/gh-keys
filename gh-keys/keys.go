@@ -141,12 +141,13 @@ func printableKeysOf(account string) string {
 		}
 		filepath := keyFilepath(account)
 		content := strings.Join(keys, "\n")
-		
-		deleteKeyFile(account)
-		
-		// TODO verify format before writing to file
-		error = ioutil.WriteFile(filepath, []byte(content), 0600)
-		check(error)
+		// don't write empty file that could end up being cached
+		if len(keys) != 0 {
+			deleteKeyFile(account)
+			// TODO verify format before writing to file
+			error = ioutil.WriteFile(filepath, []byte(content), 0600)
+			check(error)
+		}
 		return content
 	}
 }

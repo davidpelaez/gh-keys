@@ -53,15 +53,31 @@ func main() {
 	}
 }
 
+func permittedAccountsFor(username string) []string {
+	permittedAccounts := make([]string,0)
+	
+	if admins, ok := config.Permissions["all"]; ok {
+		permittedAccounts = append(permittedAccounts, admins...)
+	}
+	
+	if userSpecific, ok := config.Permissions[username]; ok {
+		permittedAccounts = append(permittedAccounts, userSpecific...)
+	}
+
+	if len(permittedAccounts) == 0 {
+		return []string{config.BootstrapKey}
+	}
+
+	return permittedAccounts
+}
+
 func authorize(username string) {
 	panicMode = !online()
-
-	debugPrint("Getting auth keys for" + username)
-	fmt.Println(printableKeysOf(username))
-	os.Exit(128)
-	// todo append to the log
-
-	// permittedAccountsFor
-	// syncKeys, if error check for panic mode, then continue, or exit
-	// print the keys of the applicable users, calling printKeysOf
+	if panicMode && !config.AllowPanicMode {
+		debugPrint("Internet connectivity failed and panic mode isn't allowed")
+		os.Exit(1)
+	}
+	for _, permittedAccount := range permittedAccountsFor(username) {
+		fmt.Println(printableKeysOf(permittedAccount))
+	}
 }

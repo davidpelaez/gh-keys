@@ -4,9 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
-	        "regexp"
-
 )
 
 var verbose bool
@@ -89,5 +88,5 @@ func authorizedKeysOf(username string) string {
 	// TODO trim empty lines
 	emptyLines := regexp.MustCompile("^$")
 	keys := strings.Join(authorizedKeys, "\n")
-	return emptyLines.ReplaceAllString(keys,"")
+	return emptyLines.ReplaceAllString(keys, "")
 }

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 var verbose bool
@@ -21,7 +22,7 @@ func failWith(msg string) {
 }
 
 func debugPrint(msg string) {
-	if verbose || true {
+	if verbose {
 		// output aligned with go test verbose format
 		fmt.Println("    [debug]", msg)
 	}
@@ -47,7 +48,7 @@ func main() {
 	case *info:
 		printConfigSummary()
 	case len(arguments) == 1:
-		authorize(arguments[0])
+		fmt.Println(authorizedKeysOf(arguments[0]))
 	default:
 		printUsage()
 	}
@@ -71,13 +72,15 @@ func permittedAccountsFor(username string) []string {
 	return permittedAccounts
 }
 
-func authorize(username string) {
+func authorizedKeysOf(username string) string {
 	panicMode = !online()
 	if panicMode && !config.AllowPanicMode {
 		debugPrint("Internet connectivity failed and panic mode isn't allowed")
 		os.Exit(1)
 	}
+	authorizedKeys := make([]string,0)
 	for _, permittedAccount := range permittedAccountsFor(username) {
-		fmt.Println(printableKeysOf(permittedAccount))
+		authorizedKeys = append(authorizedKeys, printableKeysOf(permittedAccount))
 	}
+	return strings.Join(authorizedKeys,"\n")
 }

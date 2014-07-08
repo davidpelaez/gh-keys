@@ -27,6 +27,7 @@ func (suite *KeysTestSuite) SetupTest() {
 }
 
 func TestKeysTestSuite(testContext *testing.T){
+	verbose = true
 	configure() // make sure configuration defaults are set
 	fakeServer = buildFakeServer()
 	suite.Run(testContext, new(KeysTestSuite))

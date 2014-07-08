@@ -14,6 +14,7 @@ type ConfigTestSuite struct {
 }
 
 func TestConfigTestSuite(testContext *testing.T){
+	verbose = true
 	suite.Run(testContext, new(ConfigTestSuite))
 }
 

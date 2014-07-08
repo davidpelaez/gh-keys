@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	        "regexp"
+
 )
 
 var verbose bool
@@ -55,12 +57,12 @@ func main() {
 }
 
 func permittedAccountsFor(username string) []string {
-	permittedAccounts := make([]string,0)
-	
+	permittedAccounts := make([]string, 0)
+
 	if admins, ok := config.Permissions["all"]; ok {
 		permittedAccounts = append(permittedAccounts, admins...)
 	}
-	
+
 	if userSpecific, ok := config.Permissions[username]; ok {
 		permittedAccounts = append(permittedAccounts, userSpecific...)
 	}
@@ -73,14 +75,19 @@ func permittedAccountsFor(username string) []string {
 }
 
 func authorizedKeysOf(username string) string {
+	debugPrint("testing connectivity")
 	panicMode = !online()
 	if panicMode && !config.AllowPanicMode {
 		debugPrint("Internet connectivity failed and panic mode isn't allowed")
 		os.Exit(1)
 	}
-	authorizedKeys := make([]string,0)
+	authorizedKeys := make([]string, 0)
+	debugPrint("getting keys")
 	for _, permittedAccount := range permittedAccountsFor(username) {
 		authorizedKeys = append(authorizedKeys, printableKeysOf(permittedAccount))
 	}
-	return strings.Join(authorizedKeys,"\n")
+	// TODO trim empty lines
+	emptyLines := regexp.MustCompile("^$")
+	keys := strings.Join(authorizedKeys, "\n")
+	return emptyLines.ReplaceAllString(keys,"")
 }

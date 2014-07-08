@@ -1,3 +1,4 @@
 token.private
-test
+test/config/keys
+test/main.test
 examples/keys

@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/go-martini/martini"
 	"github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/suite"
 
 	"net/http"
-	"os"
 	"net/http/httptest"
+	"os"
 	"testing"
 	//"time"
 	"io/ioutil"
@@ -17,7 +17,6 @@ var receivedAuthorization = "--"
 var badURL = "http://localhost:1111/users/" // made up url = offline
 var fakeServer httptest.Server
 
-
 type KeysTestSuite struct {
 	suite.Suite
 }
@@ -26,13 +25,12 @@ func (suite *KeysTestSuite) SetupTest() {
 	fakeOnline()
 }
 
-func TestKeysTestSuite(testContext *testing.T){
+func TestKeysTestSuite(testContext *testing.T) {
 	verbose = true
 	configure() // make sure configuration defaults are set
 	fakeServer = buildFakeServer()
 	suite.Run(testContext, new(KeysTestSuite))
 }
-
 
 func buildFakeServer() httptest.Server {
 	asherHawkKeys := `[ { "id": 1, "key": "ssh-rsa Asher1..." }, 
@@ -114,12 +112,12 @@ func (suite *KeysTestSuite) TestAPIToken() {
 	assert.Contains(suite.T(), receivedAuthorization, tokenBase64)
 }
 
-func createKeyFile(account string){
+func createKeyFile(account string) {
 	keyfile := keyFilepath(account)
 	deleteKeyFile(account)
 	debugPrint("Writing " + keyfile)
 	content := []byte(config.BootstrapKey)
-	error := ioutil.WriteFile(keyfile, content, 0600);
+	error := ioutil.WriteFile(keyfile, content, 0600)
 	check(error)
 }
 
@@ -139,8 +137,8 @@ func (suite *KeysTestSuite) TestReadKeyFileOf() {
 	assert.Equal(builtinPublicKey, keys)
 }
 
-func purgeStoredKeys(){
-	error := os.RemoveAll(config.KeysDir+"/*.pub")
+func purgeStoredKeys() {
+	error := os.RemoveAll(config.KeysDir + "/*.pub")
 	if error != nil && !os.IsNotExist(error) {
 		debugPrint("Tried to remove " + config.KeysDir + " it exists but got error")
 		check(error)
@@ -150,12 +148,12 @@ func purgeStoredKeys(){
 
 func (suite *KeysTestSuite) TestPrintableKeysOf() {
 	assert := assert.New(suite.T())
-	
+
 	createKeyFile("johndoe")
 
 	// cached version
 	config.TTL = 3600 // make file expiration be in the future
-	assert.Equal(printableKeysOf("johndoe"),builtinPublicKey)
+	assert.Equal(printableKeysOf("johndoe"), builtinPublicKey)
 
 	// getting unknown user
 	config.TTL = -1 // make file expiration be in the past
@@ -167,16 +165,15 @@ func (suite *KeysTestSuite) TestPrintableKeysOf() {
 	purgeStoredKeys()
 
 	keyFile := keyFilepath("duncanblack")
-	
+
 	_, err := os.Stat(keyFile)
 	assert.True(os.IsNotExist(err)) // ensure the file's absent
-	
+
 	assert.Contains(printableKeysOf("duncanblack"), "Duncan1")
 
 	_, err = os.Stat(keyFilepath("duncanblack"))
 	assert.Nil(err) // ensure the file was created
 
-	
 	// on panic mode
 	fakeOffline()
 	panicMode = true
@@ -190,7 +187,7 @@ func (suite *KeysTestSuite) TestPrintableKeysOf() {
 
 }
 
-func (suite *KeysTestSuite) TestOnlineCheck(){
+func (suite *KeysTestSuite) TestOnlineCheck() {
 	assert := assert.New(suite.T())
 	config.InternetTestURL = badURL
 	assert.False(online())

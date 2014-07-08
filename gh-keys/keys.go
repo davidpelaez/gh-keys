@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 )
 
 var client = &http.Client{Timeout: 2 * time.Second}
@@ -31,7 +31,7 @@ func online() bool {
 
 	if resp.StatusCode == 200 {
 		return true
-	}else{
+	} else {
 		debugPrint("Unexpected code in online check: " + resp.Status)
 		return false
 	}
@@ -47,7 +47,7 @@ func getAPIKeysOf(account string) ([]string, error) {
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	
+
 	// use personal token from the config if available
 	if config.APIToken != "" {
 		req.SetBasicAuth(config.APIToken, "x-oauth-basic")
@@ -92,7 +92,7 @@ func keyFilepath(account string) string {
 
 func readKeyFileOf(account string) (string, bool) {
 	filepath := keyFilepath(account)
-	if _, err := os.Stat(filepath); err !=nil && os.IsNotExist(err) {
+	if _, err := os.Stat(filepath); err != nil && os.IsNotExist(err) {
 		debugPrint("No key file found for " + account)
 		return "", false // no stored keys
 	} else {
@@ -101,13 +101,13 @@ func readKeyFileOf(account string) (string, bool) {
 		now := time.Now().Unix()
 		modTime := info.ModTime().Unix()
 		expirationTime := modTime + int64(config.TTL)
-		
+
 		isValid := false
 		if expirationTime > now {
 			debugPrint("Key file of " + account + " is within TTL")
 			isValid = true
-		}else{
-			ago := strconv.FormatInt(now - expirationTime, 2)
+		} else {
+			ago := strconv.FormatInt(now-expirationTime, 2)
 			debugPrint("Key file of " + account + "expired " + ago + "s ago")
 		}
 
@@ -117,11 +117,12 @@ func readKeyFileOf(account string) (string, bool) {
 	}
 }
 
-func deleteKeyFile(account string){
+func deleteKeyFile(account string) {
 	filepath := keyFilepath(account)
-	if _, err := os.Stat(filepath); err !=nil && !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath); err != nil && !os.IsNotExist(err) {
 		debugPrint("Deleting " + filepath)
-		removeError := os.Remove(filepath); check(removeError)
+		removeError := os.Remove(filepath)
+		check(removeError)
 	}
 }
 

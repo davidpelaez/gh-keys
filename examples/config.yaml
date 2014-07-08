@@ -5,5 +5,5 @@ Permissions:
   all: # this literally mean access to ANY account that ssh accepts at login
     - asherhawk
   git: # this means gh user 'someone' can only login as git
-    - duncanblack
     - johndoe
+    - duncanblack

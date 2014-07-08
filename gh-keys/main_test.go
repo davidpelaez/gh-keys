@@ -1,18 +1,18 @@
 package main
 
 import (
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/suite"
-    "github.com/spf13/viper"
-	"testing"
+	"github.com/stretchr/testify/suite"
 	"strings"
+	"testing"
 )
 
 type MainTestSuite struct {
 	suite.Suite
 }
 
-func TestMainTestSuite(testContext *testing.T){
+func TestMainTestSuite(testContext *testing.T) {
 	verbose = true
 	suite.Run(testContext, new(MainTestSuite))
 }
@@ -24,10 +24,13 @@ func (suite *MainTestSuite) SetupTest() {
 	configure()
 }
 
+// TODO test config not found error
+// TODO test flag
+
 func setTestPermissions() {
 	gitPerms := []string{"asherhawk"}
 	allPerms := []string{"duncanblack"}
-	config.Permissions = map[string][]string{"all":allPerms, "git": gitPerms}
+	config.Permissions = map[string][]string{"all": allPerms, "git": gitPerms}
 }
 
 func (suite *MainTestSuite) TestAuthorizedKeysOf() {
@@ -43,26 +46,26 @@ func (suite *MainTestSuite) TestAuthorizedKeysOf() {
 func (suite *MainTestSuite) TestPermittedAccountsFor() {
 	assert := assert.New(suite.T())
 	// without any config
-	for _, user := range []string{"root","git","something"} {
+	for _, user := range []string{"root", "git", "something"} {
 		permitted := permittedAccountsFor(user)
-		assert.Contains(permitted[0],config.BootstrapKey)	
-		assert.Equal(len(permitted),1)	
+		assert.Contains(permitted[0], config.BootstrapKey)
+		assert.Equal(len(permitted), 1)
 	}
 
 	// with specific perms
 	setTestPermissions()
 
 	gitPermitted := permittedAccountsFor("git")
-	assert.Equal(len(gitPermitted),2)
+	assert.Equal(len(gitPermitted), 2)
 	gitPermittedList := strings.Join(gitPermitted, " ")
 	assert.Contains(gitPermittedList, "asherhawk")
 	assert.Contains(gitPermittedList, "duncanblack")
 
 	rootPermitted := permittedAccountsFor("root")
-	assert.Equal(len(rootPermitted),1)
+	assert.Equal(len(rootPermitted), 1)
 
-	whateverPermitted :=  permittedAccountsFor("whatever")
-	assert.Equal(len(whateverPermitted),1)
-	assert.Equal(whateverPermitted[0],"duncanblack")
+	whateverPermitted := permittedAccountsFor("whatever")
+	assert.Equal(len(whateverPermitted), 1)
+	assert.Equal(whateverPermitted[0], "duncanblack")
 
 }

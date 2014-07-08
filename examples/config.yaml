@@ -1,6 +1,18 @@
 ---
-AllowPanicMode: False # use expired cached keys if server's offline and key expired?
-TTL: 300 # for how long in seconds is a cached key valid before a new lookup is performed?
+# use expired cached keys if the machine has no Internet (API's offline)
+# false means strict TTL of keys, so a machine without access to Internet
+# will lock itself until the connectivity check passes again
+# unless you know what you're doing, using False is a bad idea
+AllowPanicMode: False 
+
+# for how long in seconds is a cached key valid before a new API get is performed?
+# this must be set to something reasonable to avoid reaching GH hourly rate for
+# unauthorized users
+TTL: 300 
+
+# this is a simple map defining for each local user what github accounts public keys
+# are authorized. The wildcard username all can be used to define a user whose public
+# keys will always be included in the authorized keys output.
 Permissions:
   all: # this literally means davidpelaez can access ANY account that ssh accepts at login
     - davidpelaez

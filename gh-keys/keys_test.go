@@ -121,28 +121,28 @@ func createKeyFile(account string){
 	deleteKeyFile(account)
 	debugPrint("Writing " + keyfile)
 	content := []byte(config.BootstrapKey)
-	error := ioutil.WriteFile(keyfile, content, 0600); check(error)
-	
+	error := ioutil.WriteFile(keyfile, content, 0600);
+	check(error)
 }
 
 func (suite *KeysTestSuite) TestReadKeyFileOf() {
-//	assert := assert.New(suite.T())
+	assert := assert.New(suite.T())
 	createKeyFile("johndoe")
-//
-//	config.TTL = -1 // make file expiration be in the past
-//	_, valid := readKeyFileOf("johndoe")
-//	assert.False(valid)
-//
-//	createKeyFile("janedoe")
-//
-//	config.TTL = 3600 // make file expiration be in the future
-//	keys, valid := readKeyFileOf("janedoe")
-//	assert.True(valid)
-//	assert.Equal(builtinPublicKey, keys)
+
+	config.TTL = -1 // make file expiration be in the past
+	_, valid := readKeyFileOf("johndoe")
+	assert.False(valid)
+
+	createKeyFile("janedoe")
+
+	config.TTL = 3600 // make file expiration be in the future
+	keys, valid := readKeyFileOf("janedoe")
+	assert.True(valid)
+	assert.Equal(builtinPublicKey, keys)
 }
 
-func purgeKeysDir(){
-	error := os.RemoveAll(config.KeysDir)
+func purgeStoredKeys(){
+	error := os.RemoveAll(config.KeysDir+"/*.pub")
 	if error != nil && !os.IsNotExist(error) {
 		debugPrint("Tried to remove " + config.KeysDir + " it exists but got error")
 		check(error)
@@ -151,37 +151,39 @@ func purgeKeysDir(){
 }
 
 func (suite *KeysTestSuite) TestPrintableKeysOf() {
-	//assert := assert.New(suite.T())
+	assert := assert.New(suite.T())
 	
 	createKeyFile("johndoe")
 
-//	// cached version
-//	config.TTL = 3600 // make file expiration be in the future
-//	assert.Equal(printableKeysOf("johndoe"),builtinPublicKey)
-//
-//	// getting unknown user
-//	config.TTL = -1 // make file expiration be in the past
-//	// no such user in the API and key expired, hence should be empty
-//	assert.Equal(printableKeysOf("johndoe"), "")
-//
-//	// getting valid user from scratch
-//
-//	purgeKeysDir()
-//
-//	_, err := os.Stat(keyFilepath("duncanblack"))
-//	assert.True(os.IsNotExist(err)) // ensure the file's absent
-//	
-//	assert.Contains(printableKeysOf("duncanblack"), "Duncan1")
-//
-//	_, err = os.Stat(keyFilepath("duncanblack"))
-//	assert.Nil(err) // ensure the file was created
-//
-//	
-//	// on panic mode
-//	createKeyFile("johndoe")
-//	panicMode = true
-//	config.TTL = -1 // make file expiration be in the past
-//	assert.Equal(builtinPublicKey, printableKeysOf("johndoe"))
+	// cached version
+	config.TTL = 3600 // make file expiration be in the future
+	assert.Equal(printableKeysOf("johndoe"),builtinPublicKey)
+
+	// getting unknown user
+	config.TTL = -1 // make file expiration be in the past
+	// no such user in the API and key expired, hence should be empty
+	assert.Equal(printableKeysOf("johndoe"), "")
+
+	// getting valid user from scratch
+
+	purgeStoredKeys()
+
+	keyFile := keyFilepath("duncanblack")
+	
+	_, err := os.Stat(keyFile)
+	assert.True(os.IsNotExist(err)) // ensure the file's absent
+	
+	assert.Contains(printableKeysOf("duncanblack"), "Duncan1")
+
+	_, err = os.Stat(keyFilepath("duncanblack"))
+	assert.Nil(err) // ensure the file was created
+
+	
+	// on panic mode
+	createKeyFile("johndoe")
+	panicMode = true
+	config.TTL = -1 // make file expiration be in the past
+	assert.Equal(builtinPublicKey, printableKeysOf("johndoe"))
 
 }
 

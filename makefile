@@ -11,7 +11,7 @@ run: build
 test:
 	@mkdir -p test
 	@rm -rf test/*
-	@cd test && go test ../gh-keys/*.go -c && ./main.test
+	@cd test && go test ../gh-keys/*.go -c && ./main.test -test.v
 
 coverage:
 	@cd gh-keys && go test -cover 2>&1 | grep -o -E '(coverage).*' | cat

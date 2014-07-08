@@ -9,6 +9,7 @@ import (
 	"path"
 	"strings"
 	"time"
+	"strconv"
 )
 
 var client = &http.Client{Timeout: 2 * time.Second}
@@ -106,7 +107,8 @@ func readKeyFileOf(account string) (string, bool) {
 			debugPrint("Key file of " + account + " is within TTL")
 			isValid = true
 		}else{
-			debugPrint("expiration: " + string(expirationTime) + " now: " + string(now))
+			ago := strconv.FormatInt(now - expirationTime, 2)
+			debugPrint("Key file of " + account + "expired " + ago + "s ago")
 		}
 
 		keys, error := ioutil.ReadFile(filepath)

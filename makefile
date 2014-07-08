@@ -10,7 +10,7 @@ run: build
 
 test:
 	@mkdir -p test
-	@rm -rf test/keys test/main.test || :
+	@rm -rf test/keys test/config/keys test/main.test || :
 	@cd test && go test ../gh-keys/*.go -c && ./main.test
 
 coverage:

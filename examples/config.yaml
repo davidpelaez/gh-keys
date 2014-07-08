@@ -3,6 +3,7 @@ AllowPanicMode: False # use expired cached keys if server's offline?
 TTL: 10 # for how long is a cached key valid before a new lookup is performed?
 Permissions:
   all: # this literally mean access to ANY account that ssh accepts at login
-    - developer
+    - asherhawk
   git: # this means gh user 'someone' can only login as git
-    - someone
+    - duncanblack
+    - johndoe

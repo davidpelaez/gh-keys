@@ -40,7 +40,7 @@ func configure() {
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("AllowPanicMode", true)
-	viper.SetDefault("TTL", 1)
+	viper.SetDefault("TTL", 300)
 	viper.SetDefault("InternetTestURL", "http://icanhazip.com/")
 
 	err := viper.ReadInConfig()

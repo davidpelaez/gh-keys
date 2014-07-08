@@ -22,16 +22,13 @@ type KeysTestSuite struct {
 	suite.Suite
 }
 
-func (suite *KeysTestSuite) SetupSuite() {
-	configure() // make sure configuration defaults are set
-	fakeServer = buildFakeServer()
-}
-
 func (suite *KeysTestSuite) SetupTest() {
 	fakeOnline()
 }
 
 func TestKeysTestSuite(testContext *testing.T){
+	configure() // make sure configuration defaults are set
+	fakeServer = buildFakeServer()
 	suite.Run(testContext, new(KeysTestSuite))
 }
 
@@ -180,10 +177,15 @@ func (suite *KeysTestSuite) TestPrintableKeysOf() {
 
 	
 	// on panic mode
-	createKeyFile("johndoe")
+	fakeOffline()
 	panicMode = true
+
+	createKeyFile("johndoe")
 	config.TTL = -1 // make file expiration be in the past
 	assert.Equal(builtinPublicKey, printableKeysOf("johndoe"))
+
+	// when a user has no local keyfile and api offline, empty keys returned
+	assert.Equal("", printableKeysOf("unknown"))
 
 }
 
@@ -193,14 +195,4 @@ func (suite *KeysTestSuite) TestOnlineCheck(){
 	assert.False(online())
 	config.InternetTestURL = "http://icanhazip.com"
 	assert.True(online())
-}
-
-func (suite *KeysTestSuite) TestKeySyncing() {
-	// test expiration of files in disk
-	// writing to the right location
-	assert.True(suite.T(), true, "pending...")
-}
-
-func (suite *KeysTestSuite) TestOfflineSync() {
-	assert.True(suite.T(), true, "pending...")
 }

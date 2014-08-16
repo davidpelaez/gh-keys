@@ -145,7 +145,7 @@ func printableKeysOf(account string) string {
 
 		// append to the comment the github username
 		for i := range keys {
-			keys[i] = keys[i] + " @" + account 
+			keys[i] = keys[i] + " @" + account
 		}
 
 		content := strings.Join(keys, "\n")

@@ -61,15 +61,15 @@ func permittedAccountsFor(username string) []string {
 	if admins, hasAdminKey := config.Permissions["all"]; hasAdminKey {
 		debugPrint("Using wildcard accounts as permitted for local user " + username)
 		permittedAccounts = append(permittedAccounts, admins...)
-	}else{
+	} else {
 		debugPrint("No configured wildcard while requesting permitted accounts for " + username)
 	}
 
 	if userSpecific, hasUsernameKey := config.Permissions[username]; hasUsernameKey {
 		permittedAccounts = append(permittedAccounts, userSpecific...)
-		}else{
+	} else {
 
-			debugPrint("No user specific keys were found for username " + username)
+		debugPrint("No user specific keys were found for username " + username)
 	}
 
 	return permittedAccounts

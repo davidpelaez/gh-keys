@@ -46,14 +46,14 @@ func (suite *MainTestSuite) TestAuthorizedKeysOf() {
 	assert.Contains(gitAuthorizedKeys, "Asher2")
 	assert.Contains(gitAuthorizedKeys, "Duncan1")
 	assert.NotContains(gitAuthorizedKeys, config.BootstrapKey)
-	
+
 }
 
 // ensure the special permissions of `all` work when present
 // and that when missing randmo users get 0 access
 func (suite *MainTestSuite) TestWildcardPermissions() {
 	assert := assert.New(suite.T())
-	
+
 	// verify that the bootstrap key isn't present with explicit perms
 	rootPerms := []string{"asherhawk"}
 	config.Permissions = map[string][]string{"root": rootPerms}

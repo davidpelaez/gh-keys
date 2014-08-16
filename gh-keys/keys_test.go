@@ -117,7 +117,7 @@ func createKeyFile(account string) {
 	keyfile := keyFilepath(account)
 	deleteKeyFile(account)
 	debugPrint("Writing " + keyfile)
-	content := []byte(config.BootstrapKey)
+	content := []byte("ssh-rsa createdKey for @" + account)
 	error := ioutil.WriteFile(keyfile, content, 0600)
 	check(error)
 }
@@ -135,7 +135,7 @@ func (suite *KeysTestSuite) TestReadKeyFileOf() {
 	config.TTL = 3600 // make file expiration be in the future
 	keys, valid := readKeyFileOf("janedoe")
 	assert.True(valid)
-	assert.Equal(builtinPublicKey, keys)
+	assert.Contains(keys, "@janedoe")
 }
 
 func purgeStoredKeys() {
@@ -154,7 +154,7 @@ func (suite *KeysTestSuite) TestPrintableKeysOf() {
 
 	// cached version
 	config.TTL = 3600 // make file expiration be in the future
-	assert.Equal(printableKeysOf("johndoe"), builtinPublicKey)
+	assert.Contains(printableKeysOf("johndoe"), "@johndoe")
 
 	// getting unknown user
 	config.TTL = -1 // make file expiration be in the past
@@ -181,7 +181,7 @@ func (suite *KeysTestSuite) TestPrintableKeysOf() {
 
 	createKeyFile("johndoe")
 	config.TTL = -1 // make file expiration be in the past
-	assert.Equal(builtinPublicKey, printableKeysOf("johndoe"))
+	assert.Contains(printableKeysOf("johndoe"), "@johndoe")
 
 	// when a user has no local keyfile and api offline, empty keys returned
 	assert.Equal("", printableKeysOf("unknown"))

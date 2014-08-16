@@ -58,12 +58,18 @@ func main() {
 func permittedAccountsFor(username string) []string {
 	permittedAccounts := make([]string, 0)
 
-	if admins, ok := config.Permissions["all"]; ok {
+	if admins, hasAdminKey := config.Permissions["all"]; hasAdminKey {
+		debugPrint("Using wildcard accounts as permitted for local user " + username)
 		permittedAccounts = append(permittedAccounts, admins...)
+	}else{
+		debugPrint("No configured wildcard while requesting permitted accounts for " + username)
 	}
 
-	if userSpecific, ok := config.Permissions[username]; ok {
+	if userSpecific, hasUsernameKey := config.Permissions[username]; hasUsernameKey {
 		permittedAccounts = append(permittedAccounts, userSpecific...)
+		}else{
+
+			debugPrint("No user specific keys were found for username " + username)
 	}
 
 	return permittedAccounts
@@ -82,7 +88,7 @@ func authorizedKeysOf(username string) string {
 		authorizedKeys = append(authorizedKeys, printableKeysOf(permittedAccount))
 	}
 
-	if len(authorizedKeys) == 0 {
+	if len(config.Permissions) == 0 {
 		authorizedKeys = []string{config.BootstrapKey}
 	}
 	// TODO trim empty lines

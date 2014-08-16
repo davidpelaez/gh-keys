@@ -142,6 +142,12 @@ func printableKeysOf(account string) string {
 			check(error)
 		}
 		filepath := keyFilepath(account)
+
+		// append to the comment the github username
+		for i := range keys {
+			keys[i] = keys[i] + " @" + account 
+		}
+
 		content := strings.Join(keys, "\n")
 		// don't write empty file that could end up being cached
 		if len(keys) != 0 {
